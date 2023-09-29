@@ -10,7 +10,8 @@ public class TermEditorCLI {
     private Scanner scanner;
     private String[] args;
     private String helpMessage;
-    private TermEditorCommand termEditorCommand;
+    private ITermEditorCommand termEditorCommand;
+    private TermEditorFile file;
 
     public TermEditorCLI(Scanner scanner, String[] args) {
         this.scanner = scanner;
@@ -27,7 +28,31 @@ public class TermEditorCLI {
         checkHelpFlag();
         Option option = getUserInputOption();
         String filename = getUserInputFilename();
-        termEditorCommand = getTermEditorCommandInstance(option, filename);
+
+        try {
+            String fileExtenstion = filename.split("\\.")[1];
+            switch (fileExtenstion) {
+                case "sh":
+                    file = new TermEditorBashFile(filename);
+                    break;
+                default:
+                    file = new TermEditorFile(filename);
+                    break;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            file = new TermEditorFile(filename);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e);
+            System.exit(-1);
+        }
+
+        try {
+            termEditorCommand = getTermEditorCommandInstance(option, file);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e);
+            System.exit(-1);
+        }
+        termEditorCommand.execute();
     }
 
     public void checkHelpFlag() {
@@ -75,16 +100,18 @@ public class TermEditorCLI {
         return filename;
     }
 
-    public TermEditorCommand getTermEditorCommandInstance(Option option, String filename) {
+    public ITermEditorCommand getTermEditorCommandInstance(Option option, TermEditorFile filename) throws Exception {
         switch (option) {
             case CREATE:
-                return new TermEditorCreateCommand();
+                return new TermEditorCreateCommand(file);
             case EDIT:
-                return new TermEditorEditCommand();
+                return new TermEditorEditCommand(file);
             case DELETE:
-                return new TermEditorDeleteCommand();
+                return new TermEditorDeleteCommand(file);
             case INVALID:
                 throw new Exception("Invalid option for TermEditorCommand instance was given");
+            default:
+                throw new Exception("No option for TermEditorCommand instance was matched");
         }
     }
 }

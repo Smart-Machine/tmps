@@ -1,4 +1,4 @@
-default: build run 
+default: build run clean 
 
 build:
 	@echo "`tput bold`Building...`tput sgr0`"
