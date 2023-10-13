@@ -27,7 +27,7 @@ public class TermEditorFileBuilder implements ITermEditorFile, ITermEditorFileTi
 
             if (file.getFileContent() != null) {
                 FileWriter fileWriter = new FileWriter(file.getFileOutput());
-                if (file.getFileExtension().equals("sh") || file.getFileExtension().equals("py")) {
+                if (file.getFileExtension() != null && (file.getFileExtension().equals("sh") || file.getFileExtension().equals("py"))) {
                     file.getFileOutput().setExecutable(true);
                 }
                 fileWriter.write(file.getFileContent());
